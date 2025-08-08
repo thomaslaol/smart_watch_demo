@@ -1,11 +1,8 @@
 #include "cst816t.h"
+#include "lcd_common.h"
 
 #include "iic_bus.h"
 #include "driver/gpio.h"
-#include "esp_log.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/queue.h"
 
 static i2c_port_t cst816t_i2c_port = I2C_NUM_1;
 static const char *TAG = "CST816T";
@@ -156,32 +153,56 @@ static esp_err_t cst816t_read_touch_data(cst816t_data_t *data)
 }
 
 // 触摸处理任务
+// 修改触摸处理任务，将数据更新到供LVGL使用的变量
 static void cst816t_task(void *arg)
 {
     uint32_t io_num;
-    cst816t_data_t touch_data;
+    cst816t_data_t touch_data_raw;
     uint8_t clear_reg;
     int16_t last_x = -1, last_y = -1;
+
+    // 检查互斥锁是否已经初始化
+    if (touch_mutex == NULL) {
+        ESP_LOGE(TAG, "触摸互斥锁未初始化");
+        vTaskDelete(NULL);
+    }
 
     while (1)
     {
         if (xQueueReceive(touch_queue, &io_num, portMAX_DELAY))
         {
-            if (cst816t_read_touch_data(&touch_data) == ESP_OK && touch_data.touch_num > 0)
+            if (cst816t_read_touch_data(&touch_data_raw) == ESP_OK)
             {
-                // 过滤微小变化
-                bool need_print = (touch_data.gesture != 0) ||
-                                 (abs(touch_data.x - last_x) > 5) ||
-                                 (abs(touch_data.y - last_y) > 5);
+                xSemaphoreTake(touch_mutex, portMAX_DELAY);
+                
+                // 更新坐标
+                touch_data.point.x = touch_data_raw.x;
+                touch_data.point.y = touch_data_raw.y;
 
-                if (need_print)
-                {
-                    const char *gesture_str = (touch_data.gesture < sizeof(gesture_names)/sizeof(char*)) ?
-                                             gesture_names[touch_data.gesture] : "无效";
-                    ESP_LOGI(TAG, "触摸: %s (x=%d, y=%d)", gesture_str, touch_data.x, touch_data.y);
+                // 根据触摸数量更新状态
+                if (touch_data_raw.touch_num > 0) {
+                    touch_data.state = LV_INDEV_STATE_PR; // 按下状态
                     
-                    last_x = touch_data.x;
-                    last_y = touch_data.y;
+                    // 处理手势（如果需要）
+                    if (touch_data_raw.gesture == 1) { // 上滑
+                        // 可以在这里添加自定义处理
+                    } else if (touch_data_raw.gesture == 2) { // 下滑
+                        // 可以在这里添加自定义处理
+                    }
+                } else {
+                    touch_data.state = LV_INDEV_STATE_REL; // 释放状态
+                }
+
+                xSemaphoreGive(touch_mutex);
+
+                // 打印调试信息
+                if (touch_data_raw.touch_num > 0) {
+                    // const char *gesture_str = (touch_data_raw.gesture < sizeof(gesture_names)/sizeof(char*)) ?
+                    //                          gesture_names[touch_data_raw.gesture] : "无效";
+                    // ESP_LOGI(TAG, "触摸: %s (x=%d, y=%d)", gesture_str, touch_data_raw.x, touch_data_raw.y);
+                    
+                    last_x = touch_data_raw.x;
+                    last_y = touch_data_raw.y;
                 }
             }
             cst816t_read_reg(0x00, &clear_reg, 1);  // 清除中断
@@ -189,6 +210,39 @@ static void cst816t_task(void *arg)
         }
     }
 }
+// static void cst816t_task(void *arg)
+// {
+//     uint32_t io_num;
+//     cst816t_data_t touch_data;
+//     uint8_t clear_reg;
+//     int16_t last_x = -1, last_y = -1;
+
+//     while (1)
+//     {
+//         if (xQueueReceive(touch_queue, &io_num, portMAX_DELAY))
+//         {
+//             if (cst816t_read_touch_data(&touch_data) == ESP_OK && touch_data.touch_num > 0)
+//             {
+//                 // 过滤微小变化
+//                 bool need_print = (touch_data.gesture != 0) ||
+//                                  (abs(touch_data.x - last_x) > 5) ||
+//                                  (abs(touch_data.y - last_y) > 5);
+
+//                 if (need_print)
+//                 {
+//                     const char *gesture_str = (touch_data.gesture < sizeof(gesture_names)/sizeof(char*)) ?
+//                                              gesture_names[touch_data.gesture] : "无效";
+//                     ESP_LOGI(TAG, "触摸: %s (x=%d, y=%d)", gesture_str, touch_data.x, touch_data.y);
+                    
+//                     last_x = touch_data.x;
+//                     last_y = touch_data.y;
+//                 }
+//             }
+//             cst816t_read_reg(0x00, &clear_reg, 1);  // 清除中断
+//             vTaskDelay(20 / portTICK_PERIOD_MS);
+//         }
+//     }
+// }
 
 // 启动函数
 void cst816t_start_verify(void)

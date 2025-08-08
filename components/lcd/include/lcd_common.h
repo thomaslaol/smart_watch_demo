@@ -7,7 +7,14 @@
 #include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/queue.h"
+
+extern lv_indev_t *touch_indev;
+extern lv_indev_data_t touch_data;
+extern SemaphoreHandle_t touch_mutex; 
 
 void ui_task(void *arg);
+
+void cst816t_start_verify(void);
 
 #endif // _LCD_COMMON_H_
