@@ -3,6 +3,15 @@ dependencies:
     source:
       type: idf
     version: 5.2.0
-manifest_hash: bc3292e6e8c183535ed972f5f33469ec6ed3ef632ab902c26ec8c60bf119f919
+  lvgl:
+    dependencies: []
+    source:
+      path: /home/thomas/esp_projects/esp_demo/components/lvgl
+      type: local
+    version: 8.4.0
+direct_dependencies:
+- idf
+- lvgl/lvgl
+manifest_hash: 736dcbe63b917494635104ecd87af4317023eb08706e159a92fab8d2dcb28f90
 target: esp32s3
 version: 2.0.0

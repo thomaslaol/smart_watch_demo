@@ -40,7 +40,12 @@
     "cst816t.h": "c",
     "queue.h": "c",
     "lcd_api.h": "c",
-    "lcd_common.h": "c"
+    "lcd_common.h": "c",
+    "gui_guider.h": "c",
+    "events_init.h": "c",
+    "widgets_init.h": "c",
+    "custom.h": "c",
+    "esp_system.h": "c"
   },
   "idf.flashType": "UART",
   "idf.port": "/dev/ttyUSB0"

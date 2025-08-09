@@ -7,7 +7,12 @@
 #include "jfh142.h"
 #include "lcd_api.h"
 
+#include "generated/gui_guider.h" // UI结构体
+#include "custom/custom.h"        // 自定义初始化
+
 #define LOG_LOCAL_LEVEL ESP_LOG_DEBUG
+
+
 
 void aht20_task(void *pvParameters)
 {
@@ -69,12 +74,14 @@ TaskHandle_t mpu6050_task_handle = NULL;
 
 void app_main(void)
 {
+
     BaseType_t xReturned;
     xReturned = xTaskCreatePinnedToCore((TaskFunction_t)aht20_task, "aht20_task", 4096, NULL, 5, &aht20_task_handle, 1);
     if (xReturned != pdPASS)
     {
         ESP_LOGE("aht20_task", "Failed to create task");
     }
+
     ESP_LOGI("aht20_task", "Task created");
 
     xReturned = xTaskCreatePinnedToCore((TaskFunction_t)kmc5881l_task, "kmc5881l_task", 4096, NULL, 5, &kmc5883l_task_handle, 1);
@@ -104,10 +111,11 @@ void app_main(void)
         ESP_LOGE("jfh142_init", "jfh142_init失败");
         return;
     }
-    
 
-//    lcd_init();
     lvgl_init();
 
-    // cst816t_start_verify();
+    setup_ui(&guider_ui);
+
+    // 5. 初始化你的自定义逻辑（刻度绘制等）
+    custom_init(&guider_ui);
 }

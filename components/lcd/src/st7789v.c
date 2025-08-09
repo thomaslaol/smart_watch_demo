@@ -156,7 +156,7 @@ esp_err_t st7789v_init(st7789v_t *dev,
 
     // 强制设置显示方向（关键：覆盖默认扫描方向）
     send_command(dev, ST7789_MADCTL);
-    uint8_t madctl = 0x00; // 尝试0x00/0x80/0x40/0xC0（见下方说明）
+    uint8_t madctl = 0x00; // 
     send_data(dev, &madctl, 1);
     ESP_LOGI(TAG, "设置MADCTL（扫描方向）: 0x%02X", madctl);
 
@@ -165,6 +165,15 @@ esp_err_t st7789v_init(st7789v_t *dev,
     send_data(dev, (uint8_t[]){0x55}, 1); // 16位
     vTaskDelay(pdMS_TO_TICKS(10));
     ESP_LOGI(TAG, "设置像素格式为16位");
+
+    // 示例：ST7789V 正伽马参数配置
+    send_command(dev, 0xE0); // 正伽马校准命令
+    uint8_t gamma_pos[] = {0x0F, 0x1A, 0x0F, 0x18, 0x2F, 0x28, 0x20, 0x22, 0x1F, 0x1B, 0x23, 0x37, 0x00, 0x07, 0x02};
+    send_data(dev, gamma_pos, 15);
+
+    send_command(dev, 0xE1); // 负伽马校准命令
+    uint8_t gamma_neg[] = {0x0F, 0x1B, 0x0F, 0x17, 0x33, 0x2C, 0x29, 0x2E, 0x30, 0x30, 0x39, 0x3F, 0x00, 0x07, 0x03};
+    send_data(dev, gamma_neg, 15);
 
     // 反色
     send_command(dev, ST7789_INVON); // 开启反色

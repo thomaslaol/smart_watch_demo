@@ -42,10 +42,22 @@ static void lv_tick_task(void *arg)
 // LVGL 主任务
 static void lvgl_task(void *arg)
 {
+
+     // 打印栈的剩余空间（初始化时）
+    UBaseType_t stack_high_watermark = uxTaskGetStackHighWaterMark(NULL);
+    ESP_LOGI("LVGL Task", "初始剩余栈空间: %u 字", stack_high_watermark);
+
     while (1)
     {
         lv_task_handler(); // 处理 LVGL 事件（依赖时间基准）
         vTaskDelay(pdMS_TO_TICKS(5));
+
+        // // 定期打印栈剩余空间（调试用）
+        // static int cnt = 0;
+        // if (cnt++ % 100 == 0) {  // 每 500ms 打印一次
+        //     stack_high_watermark = uxTaskGetStackHighWaterMark(NULL);
+        //     ESP_LOGI("LVGL Task", "当前剩余栈空间: %u 字", stack_high_watermark);
+        // }
     }
 }
 
@@ -56,6 +68,8 @@ static void lvgl_task(void *arg)
 // 修改LVGL初始化函数，添加触摸输入设备注册
 void lvgl_init(void)
 {
+
+    printf("LVGL version: %d.%d.%d\n", LVGL_VERSION_MAJOR, LVGL_VERSION_MINOR, LVGL_VERSION_PATCH);
     // 步骤 1：初始化 LVGL 核心
     lv_init();
 
@@ -82,10 +96,11 @@ void lvgl_init(void)
     }
 
     // 步骤 3：配置双缓存
-    static lv_color_t buf1[TFT_WIDTH * BUF_LINE_CNT];
-    static lv_color_t buf2[TFT_WIDTH * BUF_LINE_CNT];
+    static lv_color_t buf1[TFT_WIDTH * BUF_LINE_CNT];//240*40
+    // static lv_color_t buf2[TFT_WIDTH * BUF_LINE_CNT];
     static lv_disp_draw_buf_t draw_buf;
-    lv_disp_draw_buf_init(&draw_buf, buf1, buf2, TFT_WIDTH * BUF_LINE_CNT);
+    // lv_disp_draw_buf_init(&draw_buf, buf1, buf2, TFT_WIDTH * BUF_LINE_CNT);
+    lv_disp_draw_buf_init(&draw_buf, buf1, NULL, TFT_WIDTH * BUF_LINE_CNT);
 
     // 步骤 4：配置显示驱动
     static lv_disp_drv_t disp_drv;
@@ -112,10 +127,10 @@ void lvgl_init(void)
     esp_timer_start_periodic(tick_timer, 1000); // 每1ms触发一次
 
     // 步骤 7：创建 LVGL 任务
-    xTaskCreate(lvgl_task, "lvgl_task", 16384, NULL, 8, NULL);
+    xTaskCreate(lvgl_task, "lvgl_task", 4096, NULL, 8, NULL);
 
     // 创建UI任务
-    xTaskCreate(ui_task, "ui_task", 2048, NULL, 7, NULL);
+    // xTaskCreate(ui_task, "ui_task", 2048, NULL, 7, NULL);
 
     // 启动触摸驱动
     cst816t_start_verify();
