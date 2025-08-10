@@ -13,5 +13,5 @@ idf_component_register(
     REQUIRES freertos esp_timer driver lvgl iic_bus
 )
 
-component_compile_options(-ffast-math -O1 -Wno-error=format)
+component_compile_options(-ffast-math -O3 -Wno-error=format)
 # component_compile_options(-ffast-math -O0 -g -Wno-error=format)

@@ -6,27 +6,16 @@
 #include "mpu6050.h"
 #include "jfh142.h"
 #include "lcd_api.h"
+#include "mrtc.h"
+#include "ble_time_sync.h"
+
+// #include "nvs_flash.h"
 
 #include "generated/gui_guider.h" // UI结构体
 #include "custom/custom.h"        // 自定义初始化
 
 #define LOG_LOCAL_LEVEL ESP_LOG_DEBUG
 
-
-
-void aht20_task(void *pvParameters)
-{
-    float temperature = 0;
-    float humidity = 0;
-    if (aht20_init() == ESP_OK)
-        printf("aht20_init完成\n");
-    while (1)
-    {
-        aht20_get_value(&temperature, &humidity);
-        // printf("温度：%f, 湿度：%f\n", temperature, humidity);
-        vTaskDelay(pdMS_TO_TICKS(2000));
-    }
-}
 
 void kmc5881l_task(void *pvParameters)
 {
@@ -67,22 +56,40 @@ void mpu6050_task(void *pvParameters)
     }
 }
 
-TaskHandle_t aht20_task_handle = NULL;
+void mrtc_task(void *pvParameters)
+{
+    // mrtc_set_time(2025, 8, 10, 11, 51, 06);
+    while (1)
+    {
+        mrtc_get_time();
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+}
+
+TaskHandle_t mrtc_task_handle = NULL;
+
+
 TaskHandle_t kmc5883l_task_handle = NULL;
 TaskHandle_t bmp280_task_handle = NULL;
 TaskHandle_t mpu6050_task_handle = NULL;
 
 void app_main(void)
 {
+    esp_err_t ret;
 
-    BaseType_t xReturned;
-    xReturned = xTaskCreatePinnedToCore((TaskFunction_t)aht20_task, "aht20_task", 4096, NULL, 5, &aht20_task_handle, 1);
-    if (xReturned != pdPASS)
+    // 初始化蓝牙时间同步服务，设备名称为"ESP32-Time-Sync"
+    ret = ble_time_sync_init("ESP32-Time-Sync");
+    if (ret != ESP_OK)
     {
-        ESP_LOGE("aht20_task", "Failed to create task");
+        ESP_LOGE("MAIN", "蓝牙初始化失败");
+        return;
     }
 
-    ESP_LOGI("aht20_task", "Task created");
+    BaseType_t xReturned;
+    
+    aht20_init();
+
+
 
     xReturned = xTaskCreatePinnedToCore((TaskFunction_t)kmc5881l_task, "kmc5881l_task", 4096, NULL, 5, &kmc5883l_task_handle, 1);
     if (xReturned != pdPASS)
@@ -105,7 +112,14 @@ void app_main(void)
     }
     ESP_LOGI("mpu6050_task", "Task created");
 
-    esp_err_t ret = jfh142_init();
+    xReturned = xTaskCreatePinnedToCore((TaskFunction_t)mrtc_task, "mrtc_task", 4096, NULL, 6, &mrtc_task_handle, 1);
+    if (xReturned != pdPASS)
+    {
+        ESP_LOGE("mrtc_task", "Failed to create task");
+    }
+    ESP_LOGI("mrtc_task", "Task created");
+
+    ret = jfh142_init();
     if (ret != ESP_OK)
     {
         ESP_LOGE("jfh142_init", "jfh142_init失败");

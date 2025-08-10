@@ -7,4 +7,4 @@ idf_component_register(
     REQUIRES driver
 )
 
-component_compile_options(-ffast-math -O1 -Wno-error=format)
+component_compile_options(-ffast-math -O3 -Wno-error=format)

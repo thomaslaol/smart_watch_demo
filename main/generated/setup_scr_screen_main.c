@@ -101,7 +101,7 @@ void setup_scr_screen_main(lv_ui *ui)
     //Write codes screen_main_img_step
     ui->screen_main_img_step = lv_img_create(ui->screen_main);
     lv_obj_add_flag(ui->screen_main_img_step, LV_OBJ_FLAG_CLICKABLE);
-    lv_img_set_src(ui->screen_main_img_step, &_step_20x20);
+    lv_img_set_src(ui->screen_main_img_step, &_step_23x20);
     lv_img_set_pivot(ui->screen_main_img_step, 50,50);
     lv_img_set_angle(ui->screen_main_img_step, 0);
     lv_obj_set_pos(ui->screen_main_img_step, 17, 219);
@@ -162,7 +162,7 @@ void setup_scr_screen_main(lv_ui *ui)
     //Write codes screen_main_img_heart
     ui->screen_main_img_heart = lv_img_create(ui->screen_main);
     lv_obj_add_flag(ui->screen_main_img_heart, LV_OBJ_FLAG_CLICKABLE);
-    lv_img_set_src(ui->screen_main_img_heart, &_heat_25x25);
+    lv_img_set_src(ui->screen_main_img_heart, &_heart2_25x25);
     lv_img_set_pivot(ui->screen_main_img_heart, 50,50);
     lv_img_set_angle(ui->screen_main_img_heart, 0);
     lv_obj_set_pos(ui->screen_main_img_heart, 64, 192);
@@ -289,36 +289,36 @@ void setup_scr_screen_main(lv_ui *ui)
     lv_obj_set_size(ui->screen_main_canvas_2, 240, 51);
     lv_obj_set_scrollbar_mode(ui->screen_main_canvas_2, LV_SCROLLBAR_MODE_OFF);
 
-    //Write codes screen_main_canvas_1
-    ui->screen_main_canvas_1 = lv_canvas_create(ui->screen_main);
-    static lv_color_t buf_screen_main_canvas_1[LV_CANVAS_BUF_SIZE_TRUE_COLOR_ALPHA(240, 38)];
-    lv_canvas_set_buffer(ui->screen_main_canvas_1, buf_screen_main_canvas_1, 240, 38, LV_IMG_CF_TRUE_COLOR_ALPHA);
-    lv_canvas_fill_bg(ui->screen_main_canvas_1, lv_color_hex(0xffffff), 0);
-    //Canvas draw line
-    static lv_point_t screen_main_canvas_1_points_array_0[] = {{1, 36},{240, 36},};
-    lv_draw_line_dsc_t screen_main_canvas_1_line_dsc_0;
-    lv_draw_line_dsc_init(&screen_main_canvas_1_line_dsc_0);
-    screen_main_canvas_1_line_dsc_0.color = lv_color_hex(0x0039ff);
-    screen_main_canvas_1_line_dsc_0.opa = 255;
-    screen_main_canvas_1_line_dsc_0.width = 0;
-    screen_main_canvas_1_line_dsc_0.round_start = false;
-    screen_main_canvas_1_line_dsc_0.round_end = false;
-    lv_canvas_draw_line(ui->screen_main_canvas_1, screen_main_canvas_1_points_array_0, 2, &screen_main_canvas_1_line_dsc_0);
+    // //Write codes screen_main_canvas_1
+    // ui->screen_main_canvas_1 = lv_canvas_create(ui->screen_main);
+    // static lv_color_t buf_screen_main_canvas_1[LV_CANVAS_BUF_SIZE_TRUE_COLOR_ALPHA(240, 38)];
+    // lv_canvas_set_buffer(ui->screen_main_canvas_1, buf_screen_main_canvas_1, 240, 38, LV_IMG_CF_TRUE_COLOR_ALPHA);
+    // lv_canvas_fill_bg(ui->screen_main_canvas_1, lv_color_hex(0xffffff), 0);
+    // //Canvas draw line
+    // static lv_point_t screen_main_canvas_1_points_array_0[] = {{1, 36},{240, 36},};
+    // lv_draw_line_dsc_t screen_main_canvas_1_line_dsc_0;
+    // lv_draw_line_dsc_init(&screen_main_canvas_1_line_dsc_0);
+    // screen_main_canvas_1_line_dsc_0.color = lv_color_hex(0x0039ff);
+    // screen_main_canvas_1_line_dsc_0.opa = 255;
+    // screen_main_canvas_1_line_dsc_0.width = 0;
+    // screen_main_canvas_1_line_dsc_0.round_start = false;
+    // screen_main_canvas_1_line_dsc_0.round_end = false;
+    // lv_canvas_draw_line(ui->screen_main_canvas_1, screen_main_canvas_1_points_array_0, 2, &screen_main_canvas_1_line_dsc_0);
 
-    //Canvas draw line
-    static lv_point_t screen_main_canvas_1_points_array_1[] = {{120, 4},{120, 30},};
-    lv_draw_line_dsc_t screen_main_canvas_1_line_dsc_1;
-    lv_draw_line_dsc_init(&screen_main_canvas_1_line_dsc_1);
-    screen_main_canvas_1_line_dsc_1.color = lv_color_hex(0xa44040);
-    screen_main_canvas_1_line_dsc_1.opa = 194;
-    screen_main_canvas_1_line_dsc_1.width = 1;
-    screen_main_canvas_1_line_dsc_1.round_start = false;
-    screen_main_canvas_1_line_dsc_1.round_end = false;
-    lv_canvas_draw_line(ui->screen_main_canvas_1, screen_main_canvas_1_points_array_1, 2, &screen_main_canvas_1_line_dsc_1);
+    // //Canvas draw line
+    // static lv_point_t screen_main_canvas_1_points_array_1[] = {{120, 4},{120, 30},};
+    // lv_draw_line_dsc_t screen_main_canvas_1_line_dsc_1;
+    // lv_draw_line_dsc_init(&screen_main_canvas_1_line_dsc_1);
+    // screen_main_canvas_1_line_dsc_1.color = lv_color_hex(0xa44040);
+    // screen_main_canvas_1_line_dsc_1.opa = 194;
+    // screen_main_canvas_1_line_dsc_1.width = 1;
+    // screen_main_canvas_1_line_dsc_1.round_start = false;
+    // screen_main_canvas_1_line_dsc_1.round_end = false;
+    // lv_canvas_draw_line(ui->screen_main_canvas_1, screen_main_canvas_1_points_array_1, 2, &screen_main_canvas_1_line_dsc_1);
 
-    lv_obj_set_pos(ui->screen_main_canvas_1, 0, 0);
-    lv_obj_set_size(ui->screen_main_canvas_1, 240, 38);
-    lv_obj_set_scrollbar_mode(ui->screen_main_canvas_1, LV_SCROLLBAR_MODE_OFF);
+    // lv_obj_set_pos(ui->screen_main_canvas_1, 0, 0);
+    // lv_obj_set_size(ui->screen_main_canvas_1, 240, 38);
+    // lv_obj_set_scrollbar_mode(ui->screen_main_canvas_1, LV_SCROLLBAR_MODE_OFF);
 
     //Write codes screen_main_img_temp
     ui->screen_main_img_temp = lv_img_create(ui->screen_main);

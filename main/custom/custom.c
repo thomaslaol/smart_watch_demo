@@ -64,7 +64,7 @@ static lv_draw_line_dsc_t midline_dsc;    // 中线描述符
 
 void custom_init(lv_ui *ui)
 {
-    /* 获取直尺画布组件 */
+    // /* 获取直尺画布组件 */
     ruler_canvas = ui->screen_main_canvas_direct;
     
     /* 初始化线条描述符（刻度线） */

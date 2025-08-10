@@ -27,7 +27,7 @@ idf_component_register(
     "images/_3304542_20230221171348882211_0_alpha_236x1.c"
     "images/_3304542_20230221171348882211_0_alpha_238x1.c"
     "images/_date_15x15.c"
-    "images/_heat_25x25.c"
+    "images/_heart_25x25.c"
     "images/_hum_15x14.c"
     # "images/_hum_18x18.c"
     # "images/_icon_wx_alpha_20x20.c"
@@ -38,6 +38,7 @@ idf_component_register(
     "images/_pointer2_15x15.c"
     # "images/_pressure_25x25.c"
     "images/_step_20x20.c"
+    "images/_step_23x20.c"
     "images/_temp_15x15.c"
     # "images/_temp_alpha_20x20.c"
     "images/_week_25x25.c"
@@ -58,5 +59,5 @@ idf_component_register(
     "images" # 图片头文件路径（如有）
 
 
-    REQUIRES aht20 qmc5883l bmp280 mpu6050 jfh142 lcd lvgl
+    REQUIRES aht20 qmc5883l bmp280 mpu6050 jfh142 lcd lvgl ble mrtc
 )

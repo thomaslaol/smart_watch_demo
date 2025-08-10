@@ -128,12 +128,12 @@ const LV_ATTRIBUTE_MEM_ALIGN LV_ATTRIBUTE_LARGE_CONST LV_ATTRIBUTE_IMG__HEAT_25X
 #endif
 };
 
-const lv_img_dsc_t _heat_25x25 = {
+const lv_img_dsc_t _heart_25x25 = {
   .header.cf = LV_IMG_CF_TRUE_COLOR,
   .header.always_zero = 0,
   .header.reserved = 0,
   .header.w = 25,
   .header.h = 25,
   .data_size = 625 * LV_COLOR_SIZE / 8,
-  .data = _heat_25x25_map,
+  .data = _heart_25x25_map,
 };
