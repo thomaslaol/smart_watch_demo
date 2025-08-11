@@ -3,33 +3,47 @@
 #include <math.h>
 #include <stdio.h>
 #include "esp_log.h"
-#define LOG_LOCAL_LEVEL ESP_LOG_DEBUG
 
+/**=========================================================================================== */
+/**                                     DEFINE                                                 */
+/**=========================================================================================== */
+#define LOG_LOCAL_LEVEL ESP_LOG_DEBUG
+#define QMC5883L_I2C_ADDR 0x0D
+#define QMC5883L_MODE_REG 0x0B   // 模式寄存器地址
+#define QMC5883L_CONFIG_REG 0x09 // 配置寄存器地址
+
+/**=========================================================================================== */
+/**                                     DATA                                                   */
+/**=========================================================================================== */
 static const char *TAG = "QMC5883L";
 static i2c_port_t qmc5883l_i2c_port = I2C_NUM_0;
+static TaskHandle_t kmc5883l_task_handle = NULL;
 
-// qmc5883l发送命令
-static esp_err_t qmc5883l_send_cmds(uint8_t reg_addr, const uint8_t *cmd_data, size_t len)
-{
-    return i2c_bus_write_bytes(qmc5883l_i2c_port, QMC5883L_I2C_ADDR, reg_addr, cmd_data, len);
-}
+qmc5883l_data_t g_qmc5883l_data;
 
-// qmc5883l读取状态
-static esp_err_t qmc5883l_read_status(uint8_t reg_addr, uint8_t *status)
-{
-    return i2c_bus_read_byte(qmc5883l_i2c_port, QMC5883L_I2C_ADDR, reg_addr, status);
-}
+/**=========================================================================================== */
+/**                                     FUNCITON                                               */
+/**=========================================================================================== */
+static esp_err_t qmc5883l_send_cmds(uint8_t reg_addr, const uint8_t *cmd_data, size_t len);
+static esp_err_t qmc5883l_read_status(uint8_t reg_addr, uint8_t *status);
+static esp_err_t qmc5883l_read_data(uint8_t reg_addr, uint8_t *data, size_t len);
+static esp_err_t qmc5883l_get_angle(void);
+static void kmc5881l_task(void *pvParameters);
 
-// qmc5883l读取数据(地址位递归读取)
-static esp_err_t qmc5883l_read_data(uint8_t reg_addr, uint8_t *data, size_t len)
-{
-    return i2c_bus_read_bytes(qmc5883l_i2c_port, QMC5883L_I2C_ADDR, reg_addr, data, len);
-}
-
+/**=========================================================================================== */
+/**                                     PUBILIC                                                */
+/**=========================================================================================== */
 /**
  * @brief qmc5883l初始化
+ * 
+ * 自动检测I2C总线是否已初始化，如果未初始化则自动初始化
+ * 初始化成功后，自动启动任务
+ * 任务每秒读取一次数据，并计算角度，存放于全局变量g_qmc5883l_data中
+ * 
+ * 检测是否初始化iic->检测设备是否存在->软件复位->设置模式->配置->启动任务
+ * 
  * @param  void
- * @return esp_err_t
+ * @return esp_err_t 
  */
 esp_err_t qmc5883l_init(void)
 {
@@ -85,15 +99,38 @@ esp_err_t qmc5883l_init(void)
 
     ESP_LOGI(TAG, "QMC5883L初始化成功");
 
+    // 启动任务
+    BaseType_t xReturned = xTaskCreatePinnedToCore((TaskFunction_t)kmc5881l_task, "kmc5881l_task", 4096, NULL, 5, &kmc5883l_task_handle, 1);
+    if (xReturned != pdPASS)
+    {
+        ESP_LOGE("kmc5881l_task", "Failed to create task");
+    }
+    ESP_LOGI("kmc5881l_task", "Task created");
+
     return ESP_OK;
+}
+
+/**=========================================================================================== */
+/**                                     STATIC                                                 */
+/**=========================================================================================== */
+/**
+ * @brief qmc5883l任务
+ * @param pvParameters 
+ */
+static void kmc5881l_task(void *pvParameters)
+{
+    while (1)
+    {
+        qmc5883l_get_angle();
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
 }
 
 /**
  * @brief qmc5883l读取角度
- * @param angle 角度值存放地址
  * @return esp_err_t
  */
-esp_err_t qmc5883l_get_angle(double *angle)
+static esp_err_t qmc5883l_get_angle(void)
 {
     esp_err_t err;
     uint8_t status = 0;
@@ -108,7 +145,7 @@ esp_err_t qmc5883l_get_angle(double *angle)
     }
     if ((status & 0x01) != 1)
     {
-        ESP_LOGE(TAG, "QMC5883L数据未准备好, 状态: %d",status);
+        ESP_LOGE(TAG, "QMC5883L数据未准备好, 状态: %d", status);
         return ESP_ERR_TIMEOUT;
     }
 
@@ -145,11 +182,29 @@ esp_err_t qmc5883l_get_angle(double *angle)
     // ESP_LOGD(TAG, "QMC5883L数据: %d, %d, %d", x, y, z);
 
     // 角度
-    *angle = atan2((double)y, (double)x) * 180 / M_PI;
-    if (*angle < 0)
-        *angle += 360;
+    g_qmc5883l_data.angle = atan2((double)y, (double)x) * 180 / M_PI;
+    if (g_qmc5883l_data.angle < 0)
+        g_qmc5883l_data.angle += 360;
 
-    ESP_LOGD(TAG, "QMC5883L角度: %.2f", angle);
+    ESP_LOGD(TAG, "QMC5883L角度: %.2f", g_qmc5883l_data.angle);
 
     return ESP_OK;
+}
+
+// qmc5883l发送命令
+static esp_err_t qmc5883l_send_cmds(uint8_t reg_addr, const uint8_t *cmd_data, size_t len)
+{
+    return i2c_bus_write_bytes(qmc5883l_i2c_port, QMC5883L_I2C_ADDR, reg_addr, cmd_data, len);
+}
+
+// qmc5883l读取状态
+static esp_err_t qmc5883l_read_status(uint8_t reg_addr, uint8_t *status)
+{
+    return i2c_bus_read_byte(qmc5883l_i2c_port, QMC5883L_I2C_ADDR, reg_addr, status);
+}
+
+// qmc5883l读取数据(地址位递归读取)
+static esp_err_t qmc5883l_read_data(uint8_t reg_addr, uint8_t *data, size_t len)
+{
+    return i2c_bus_read_bytes(qmc5883l_i2c_port, QMC5883L_I2C_ADDR, reg_addr, data, len);
 }

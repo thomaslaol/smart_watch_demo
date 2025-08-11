@@ -5,17 +5,19 @@
 #include <stdbool.h>
 #include "esp_err.h"
 
-
-
-// 初始化蓝牙（返回 ESP_OK 表示成功）
-esp_err_t ble_init(void);
-
-// 获取当前连接状态（true 表示已连接）
+/**
+ * 获取当前蓝牙连接状态
+ */
 bool ble_is_connected(void);
 
-void ble_adv_config(const char *device_name);
-
+/**
+ * @brief 蓝牙初始化入口函数
+ *
+ * @note 初始化顺序：NVS -> 时区 -> 蓝牙控制器 -> Bluedroid -> GAP 回调 -> GATT 回调 -> GATT 应用 -> 广播配置
+ *
+ * @param device_name 设备名称
+ * @return ESP_OK 成功，其他失败
+ */
 esp_err_t ble_time_sync_init(const char *device_name);
 
 #endif // BLE_TIME_SYNC_H
-    

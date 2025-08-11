@@ -3,22 +3,25 @@
 
 #include "esp_err.h"
 
-#define QMC5883L_I2C_ADDR 0x0D
-#define QMC5883L_MODE_REG 0x0B   // 模式寄存器地址
-#define QMC5883L_CONFIG_REG 0x09 // 配置寄存器地址
+typedef struct
+{
+    double angle;
+} qmc5883l_data_t;
+
+extern qmc5883l_data_t g_qmc5883l_data;
 
 /**
  * @brief qmc5883l初始化
+ *
+ * 自动检测I2C总线是否已初始化，如果未初始化则自动初始化
+ * 初始化成功后，自动启动任务
+ * 任务每秒读取一次数据，并计算角度，存放于全局变量g_qmc5883l_data中
+ *
+ * 检测是否初始化iic->检测设备是否存在->软件复位->设置模式->配置->启动任务
+ *
  * @param  void
  * @return esp_err_t
  */
 esp_err_t qmc5883l_init(void);
-
-/**
- * @brief qmc5883l读取角度
- * @param angle 角度值存放地址
- * @return esp_err_t
- */
-esp_err_t qmc5883l_get_angle(double *angle);
 
 #endif // _QMC5883L_H_

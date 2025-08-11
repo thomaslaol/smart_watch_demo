@@ -24,8 +24,7 @@ static void screen_main_img_1_event_handler(lv_event_t *e)
     {
         // printf("img1 Clicked\n");
         static int crurent = 0;
-
-        void *img_src = NULL;
+        const void *img_src = NULL;
 
         if (crurent == 0)
             img_src = &_5555_240x135;

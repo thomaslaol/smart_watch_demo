@@ -1,65 +1,27 @@
 #include "lcd_api.h"
 #include "lcd_common.h"
 
-// 首先在文件顶部添加必要的变量声明
+/**=========================================================================================== */
+/**                                     DEFINE                                                 */
+/**=========================================================================================== */
+
+/**=========================================================================================== */
+/**                                     DATA                                                   */
+/**=========================================================================================== */
 lv_indev_t *touch_indev;
 lv_indev_data_t touch_data;
 SemaphoreHandle_t touch_mutex; // 用于保护触摸数据的互斥锁
+/**=========================================================================================== */
+/**                                     FUNCTION                                               */
+/**=========================================================================================== */
+static void touch_read_cb(lv_indev_drv_t *indev_drv, lv_indev_data_t *data);
+static void disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p);
+static void lv_tick_task(void *arg);
+static void lvgl_task(void *arg);
 
-// 触摸数据读取回调函数，供LVGL调用
-static void touch_read_cb(lv_indev_drv_t *indev_drv, lv_indev_data_t *data)
-{
-    if (xSemaphoreTake(touch_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
-    {
-        // 复制最新的触摸数据到LVGL
-        data->point.x = touch_data.point.x;
-        data->point.y = touch_data.point.y;
-        data->state = touch_data.state;
-        xSemaphoreGive(touch_mutex);
-    }
-    else
-    {
-        // 如果获取不到锁，默认释放状态
-        data->state = LV_INDEV_STATE_REL;
-    }
-}
-
-// 显示刷新回调（同上，保持不变）
-static void disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
-{
-    uint16_t x1 = area->x1, y1 = area->y1, x2 = area->x2, y2 = area->y2;
-    st7789v_set_window(&tft, x1, y1, x2, y2);
-    st7789v_send_colors(&tft, (uint16_t *)color_p, (x2 - x1 + 1) * (y2 - y1 + 1));
-    lv_disp_flush_ready(disp);
-}
-
-// 向 LVGL 提供时间基准 每 1ms 调用一次
-static void lv_tick_task(void *arg)
-{
-    lv_tick_inc(1); // 每次增加 1ms
-}
-
-// LVGL 主任务
-static void lvgl_task(void *arg)
-{
-
-     // 打印栈的剩余空间（初始化时）
-    UBaseType_t stack_high_watermark = uxTaskGetStackHighWaterMark(NULL);
-    ESP_LOGI("LVGL Task", "初始剩余栈空间: %u 字", stack_high_watermark);
-
-    while (1)
-    {
-        lv_task_handler(); // 处理 LVGL 事件（依赖时间基准）
-        vTaskDelay(pdMS_TO_TICKS(5));
-
-        // // 定期打印栈剩余空间（调试用）
-        // static int cnt = 0;
-        // if (cnt++ % 100 == 0) {  // 每 500ms 打印一次
-        //     stack_high_watermark = uxTaskGetStackHighWaterMark(NULL);
-        //     ESP_LOGI("LVGL Task", "当前剩余栈空间: %u 字", stack_high_watermark);
-        // }
-    }
-}
+/**=========================================================================================== */
+/**                                     PUBILIC                                                */
+/**=========================================================================================== */
 
 /**
  * @brief 初始化 LVGL
@@ -136,4 +98,63 @@ void lvgl_init(void)
     cst816t_start_verify();
 
     vTaskDelay(pdMS_TO_TICKS(100));
+}
+
+/**=========================================================================================== */
+/**                                     SATTIC                                                 */
+/**=========================================================================================== */
+
+// 触摸数据读取回调函数，供LVGL调用
+static void touch_read_cb(lv_indev_drv_t *indev_drv, lv_indev_data_t *data)
+{
+    if (xSemaphoreTake(touch_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
+    {
+        // 复制最新的触摸数据到LVGL
+        data->point.x = touch_data.point.x;
+        data->point.y = touch_data.point.y;
+        data->state = touch_data.state;
+        xSemaphoreGive(touch_mutex);
+    }
+    else
+    {
+        // 如果获取不到锁，默认释放状态
+        data->state = LV_INDEV_STATE_REL;
+    }
+}
+
+// 显示刷新回调（同上，保持不变）
+static void disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
+{
+    uint16_t x1 = area->x1, y1 = area->y1, x2 = area->x2, y2 = area->y2;
+    st7789v_set_window(&tft, x1, y1, x2, y2);
+    st7789v_send_colors(&tft, (uint16_t *)color_p, (x2 - x1 + 1) * (y2 - y1 + 1));
+    lv_disp_flush_ready(disp);
+}
+
+// 向 LVGL 提供时间基准 每 1ms 调用一次
+static void lv_tick_task(void *arg)
+{
+    lv_tick_inc(1); // 每次增加 1ms
+}
+
+// LVGL 主任务
+static void lvgl_task(void *arg)
+{
+
+     // 打印栈的剩余空间（初始化时）
+    UBaseType_t stack_high_watermark = uxTaskGetStackHighWaterMark(NULL);
+    ESP_LOGI("LVGL Task", "初始剩余栈空间: %u 字", stack_high_watermark);
+
+    while (1)
+    {
+        lv_task_handler(); // 处理 LVGL 事件（依赖时间基准）
+        vTaskDelay(pdMS_TO_TICKS(5));
+
+        // // 定期打印栈剩余空间
+        // static int cnt = 0;
+        // if (cnt++ % 100 == 0) {  // 每 500ms 打印一次
+        //     stack_high_watermark = uxTaskGetStackHighWaterMark(NULL);
+        //     ESP_LOGI("LVGL Task", "当前剩余栈空间: %u 字", stack_high_watermark);
+        // }
+    }
 }

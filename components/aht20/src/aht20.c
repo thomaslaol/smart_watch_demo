@@ -127,10 +127,7 @@ static void aht20_task(void *pvParameters)
     }
 }
 
-/**
- * @brief 获取AHT20的温度和湿度值
- * @return esp_err_t 操作结果（ESP_OK表示成功）
- */
+// 获取AHT20的温度和湿度值
 static esp_err_t aht20_get_value(aht20_data_t *aht20_data)
 {
     uint8_t data[7] = {0xff, 0};
