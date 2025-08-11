@@ -11,15 +11,13 @@ idf_component_register(
 
     "fonts/lv_font_sun_14.c" # 中文字体
     "fonts/lv_font_sun_16.c"
+    "fonts/lv_font_sun_22.c"
     "fonts/lv_font_sun_32.c"
     "fonts/lv_font_arial_16.c"
     "fonts/lv_font_montserratMedium_12.c" # 度数字体
     "fonts/lv_font_montserratMedium_16.c"
 
-
-
-
-    "images/_111_240x135.c"
+    "images/_5555_240x135.c"
     "images/_222_240x135.c"
     "images/_333_240x135.c"
     "images/_3304542_20230221171348882211_0_58x2.c"
@@ -27,28 +25,13 @@ idf_component_register(
     "images/_3304542_20230221171348882211_0_alpha_236x1.c"
     "images/_3304542_20230221171348882211_0_alpha_238x1.c"
     "images/_date_15x15.c"
-    "images/_heart_25x25.c"
-    "images/_hum_15x14.c"
-    # "images/_hum_18x18.c"
-    # "images/_icon_wx_alpha_20x20.c"
-    "images/_icon_wx_25x25.c"
-    # "images/_o2_18x18.c"
-    # "images/_pointer_alpha_15x15.c"
-    # "images/_pointer1_alpha_15x15.c"
+    "images/_heart2_25x25.c"
+    "images/_hum_20x20.c"
     "images/_pointer2_15x15.c"
-    # "images/_pressure_25x25.c"
-    "images/_step_20x20.c"
     "images/_step_23x20.c"
-    "images/_temp_15x15.c"
-    # "images/_temp_alpha_20x20.c"
+    "images/_temp_23x23.c"
+    "images/_tired_25x25.c"
     "images/_week_25x25.c"
-    "images/_FF0000_240x135.c"
-    "images/_5555_240x135.c"
-    
-
-
-
-
 
 
     INCLUDE_DIRS

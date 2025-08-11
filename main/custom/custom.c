@@ -64,7 +64,7 @@ static lv_draw_line_dsc_t midline_dsc;    // 中线描述符
 
 void custom_init(lv_ui *ui)
 {
-    // /* 获取直尺画布组件 */
+    /* 获取直尺画布组件 */
     ruler_canvas = ui->screen_main_canvas_direct;
     
     /* 初始化线条描述符（刻度线） */
@@ -169,7 +169,7 @@ static void draw_ruler_scale(lv_obj_t *canvas, int current_angle)
             char text[16] = {0};
             int display_angle = angle % 360;
             if(display_angle > 180) display_angle -= 360;  // 转换为±180°显示
-            sprintf(text,"%d", display_angle);
+            sprintf(text, "%d", display_angle);
             
             lv_canvas_draw_text(canvas, 
                               x - 15,               // X坐标

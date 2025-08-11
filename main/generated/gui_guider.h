@@ -34,7 +34,6 @@ typedef struct
 	lv_obj_t *screen_main_img_week;
 	lv_obj_t *screen_main_label_pressure_value;
 	lv_obj_t *screen_main_canvas_2;
-	lv_obj_t *screen_main_canvas_1;
 	lv_obj_t *screen_main_img_temp;
 	lv_obj_t *screen_main_label_temp;
 	lv_obj_t *screen_main_label_humi;
@@ -50,6 +49,7 @@ typedef struct
 	lv_obj_t *screen_main_label_time_sec;
 	lv_obj_t *screen_main_label_date;
 	lv_obj_t *screen_main_img_4;
+	lv_obj_t *screen_main_line_1;
 }lv_ui;
 
 typedef void (*ui_setup_scr_t)(lv_ui * ui);
@@ -75,26 +75,21 @@ extern lv_ui guider_ui;
 
 void setup_scr_screen_main(lv_ui *ui);
 LV_IMG_DECLARE(_pointer2_15x15);
-LV_IMG_DECLARE(_step_20x20);
 LV_IMG_DECLARE(_step_23x20);
-// LV_IMG_DECLARE(_heart_25x25);
 LV_IMG_DECLARE(_heart2_25x25);
-LV_IMG_DECLARE(_icon_wx_25x25);
+LV_IMG_DECLARE(_tired_25x25);
 LV_IMG_DECLARE(_3304542_20230221171348882211_0_58x2);
 LV_IMG_DECLARE(_week_25x25);
 LV_IMG_DECLARE(_3304542_20230221171348882211_0_alpha_236x1);
 LV_IMG_DECLARE(_3304542_20230221171348882211_0_alpha_238x1);
 LV_IMG_DECLARE(_3304542_20230221171348882211_0_alpha_238x1);
-LV_IMG_DECLARE(_temp_15x15);
-LV_IMG_DECLARE(_hum_15x14);
+LV_IMG_DECLARE(_temp_23x23);
+LV_IMG_DECLARE(_hum_20x20);
+LV_IMG_DECLARE(_5555_240x135);
 LV_IMG_DECLARE(_333_240x135);
 LV_IMG_DECLARE(_222_240x135);
-LV_IMG_DECLARE(_111_240x135);
 LV_IMG_DECLARE(_3304542_20230221171348882211_0_100x2);
 LV_IMG_DECLARE(_date_15x15);
-LV_IMG_DECLARE(_FF0000_240x135);
-LV_IMG_DECLARE(_5555_240x135);
-
 
 LV_FONT_DECLARE(lv_font_sun_14)
 LV_FONT_DECLARE(lv_font_montserratMedium_16)
