@@ -14,7 +14,7 @@ static mrtc_time_t *mrtc_get_time(void);
 esp_err_t mrtc_init(void)
 {
     // 创建mrtc任务
-    BaseType_t xReturned = xTaskCreatePinnedToCore(mrtc_task, "mrtc_task", 4096, NULL, 4, NULL,0);
+    BaseType_t xReturned = xTaskCreatePinnedToCore(mrtc_task, "mrtc_task", 4096, NULL, 8, NULL,0);
     if (xReturned != pdPASS)
     {
         ESP_LOGE(TAG, "create mrtc task failed");

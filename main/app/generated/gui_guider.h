@@ -22,6 +22,38 @@ typedef struct
 	bool screen_main_del;
 	lv_obj_t *screen_main_canvas_direct;
 	lv_obj_t *screen_main_img_pointer;
+	lv_obj_t *screen_main_carousel_2;
+	lv_obj_t *screen_main_carousel_2_element_1;
+	lv_obj_t *screen_main_carousel_2_element_2;
+	lv_obj_t *screen_main_carousel_2_element_3;
+	lv_obj_t *screen_main_cont_2;
+	lv_obj_t *screen_main_img_1;
+	lv_obj_t *screen_main_cont_3;
+	lv_obj_t *screen_main_img_Wallpaper_2;
+	lv_obj_t *screen_main_cont_4;
+	lv_obj_t *screen_main_img_wallpaper_3;
+	lv_obj_t *screen_main_img_temp;
+	lv_obj_t *screen_main_label_temp;
+	lv_obj_t *screen_main_canvas_time_bg;
+	lv_obj_t *screen_main_label_weather_temp;
+	lv_obj_t *screen_main_img_ine_1;
+	lv_obj_t *screen_main_label_weather;
+	lv_obj_t *screen_main_canvas_cnt_bg;
+	lv_obj_t *screen_main_label_cnt;
+	lv_obj_t *screen_main_img_humi;
+	lv_obj_t *screen_main_label_humi;
+	lv_obj_t *screen_main_label_time;
+	lv_obj_t *screen_main_label_time_sec;
+	lv_obj_t *screen_main_label_date;
+	lv_obj_t *screen_main_img_4;
+	lv_obj_t *screen_main_line_1;
+	lv_obj_t *screen_main_carousel_1;
+	lv_obj_t *screen_main_carousel_1_element_1;
+	lv_obj_t *screen_main_carousel_1_element_2;
+	lv_obj_t *screen_main_carousel_1_element_3;
+	lv_obj_t *screen_main_cont_1;
+	lv_obj_t *screen_main_img_line_2;
+	lv_obj_t *screen_main_label_pressure_value;
 	lv_obj_t *screen_main_label_step_cnt;
 	lv_obj_t *screen_main_label_pressure;
 	lv_obj_t *screen_main_img_step;
@@ -30,26 +62,8 @@ typedef struct
 	lv_obj_t *screen_main_img_heart;
 	lv_obj_t *screen_main_label_heart;
 	lv_obj_t *screen_main_img_pressure;
-	lv_obj_t *screen_main_img_line_2;
 	lv_obj_t *screen_main_img_week;
-	lv_obj_t *screen_main_label_pressure_value;
 	lv_obj_t *screen_main_canvas_2;
-	lv_obj_t *screen_main_img_temp;
-	lv_obj_t *screen_main_label_temp;
-	lv_obj_t *screen_main_label_humi;
-	lv_obj_t *screen_main_img_humi;
-	lv_obj_t *screen_main_img_1;
-	lv_obj_t *screen_main_canvas_time_bg;
-	lv_obj_t *screen_main_label_weather_temp;
-	lv_obj_t *screen_main_img_ine_1;
-	lv_obj_t *screen_main_label_weather;
-	lv_obj_t *screen_main_canvas_cnt_bg;
-	lv_obj_t *screen_main_label_cnt;
-	lv_obj_t *screen_main_label_time;
-	lv_obj_t *screen_main_label_time_sec;
-	lv_obj_t *screen_main_label_date;
-	lv_obj_t *screen_main_img_4;
-	lv_obj_t *screen_main_line_1;
 }lv_ui;
 
 typedef void (*ui_setup_scr_t)(lv_ui * ui);
@@ -75,28 +89,28 @@ extern lv_ui guider_ui;
 
 void setup_scr_screen_main(lv_ui *ui);
 LV_IMG_DECLARE(_pointer2_15x15);
+LV_IMG_DECLARE(_5555_240x135);
+LV_IMG_DECLARE(_222_240x135);
+LV_IMG_DECLARE(_333_240x135);
+LV_IMG_DECLARE(_temp_23x23);
+LV_IMG_DECLARE(_3304542_20230221171348882211_0_100x2);
+LV_IMG_DECLARE(_hum_20x20);
+LV_IMG_DECLARE(_date_15x15);
+LV_IMG_DECLARE(_3304542_20230221171348882211_0_58x2);
 LV_IMG_DECLARE(_step_23x20);
 LV_IMG_DECLARE(_heart2_25x25);
 LV_IMG_DECLARE(_tired_25x25);
-LV_IMG_DECLARE(_3304542_20230221171348882211_0_58x2);
 LV_IMG_DECLARE(_week_25x25);
 LV_IMG_DECLARE(_3304542_20230221171348882211_0_alpha_236x1);
 LV_IMG_DECLARE(_3304542_20230221171348882211_0_alpha_238x1);
 LV_IMG_DECLARE(_3304542_20230221171348882211_0_alpha_238x1);
-LV_IMG_DECLARE(_temp_23x23);
-LV_IMG_DECLARE(_hum_20x20);
-LV_IMG_DECLARE(_5555_240x135);
-LV_IMG_DECLARE(_333_240x135);
-LV_IMG_DECLARE(_222_240x135);
-LV_IMG_DECLARE(_3304542_20230221171348882211_0_100x2);
-LV_IMG_DECLARE(_date_15x15);
 
 LV_FONT_DECLARE(lv_font_sun_14)
 LV_FONT_DECLARE(lv_font_montserratMedium_16)
 LV_FONT_DECLARE(lv_font_sun_16)
-LV_FONT_DECLARE(lv_font_montserratMedium_12)
 LV_FONT_DECLARE(lv_font_arial_16)
 LV_FONT_DECLARE(lv_font_sun_32)
+LV_FONT_DECLARE(lv_font_montserratMedium_12)
 
 
 #ifdef __cplusplus
