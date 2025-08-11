@@ -20,6 +20,7 @@ static i2c_port_t qmc5883l_i2c_port = I2C_NUM_0;
 static TaskHandle_t kmc5883l_task_handle = NULL;
 
 qmc5883l_data_t g_qmc5883l_data;
+SemaphoreHandle_t g_data_mutex = NULL; // 互斥锁
 
 /**=========================================================================================== */
 /**                                     FUNCITON                                               */
@@ -35,20 +36,23 @@ static void kmc5881l_task(void *pvParameters);
 /**=========================================================================================== */
 /**
  * @brief qmc5883l初始化
- * 
+ *
  * 自动检测I2C总线是否已初始化，如果未初始化则自动初始化
  * 初始化成功后，自动启动任务
  * 任务每秒读取一次数据，并计算角度，存放于全局变量g_qmc5883l_data中
- * 
+ *
  * 检测是否初始化iic->检测设备是否存在->软件复位->设置模式->配置->启动任务
- * 
+ *
  * @param  void
- * @return esp_err_t 
+ * @return esp_err_t
  */
 esp_err_t qmc5883l_init(void)
 {
     esp_err_t err;
     esp_log_level_set(TAG, ESP_LOG_WARN);
+
+    // 初始化互斥锁
+    g_data_mutex = xSemaphoreCreateMutex();
 
     // 确保I2C总线已初始化
     if (i2c_is_inited(qmc5883l_i2c_port) == false)
@@ -115,7 +119,7 @@ esp_err_t qmc5883l_init(void)
 /**=========================================================================================== */
 /**
  * @brief qmc5883l任务
- * @param pvParameters 
+ * @param pvParameters
  */
 static void kmc5881l_task(void *pvParameters)
 {
@@ -182,11 +186,18 @@ static esp_err_t qmc5883l_get_angle(void)
     // ESP_LOGD(TAG, "QMC5883L数据: %d, %d, %d", x, y, z);
 
     // 角度
-    g_qmc5883l_data.angle = atan2((double)y, (double)x) * 180 / M_PI;
-    if (g_qmc5883l_data.angle < 0)
-        g_qmc5883l_data.angle += 360;
+    // 上锁
+    if (xSemaphoreTake(g_data_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    {
+        g_qmc5883l_data.angle = atan2((double)y, (double)x) * 180 / M_PI;
+        if (g_qmc5883l_data.angle < 0)
+            g_qmc5883l_data.angle += 360;
 
-    ESP_LOGD(TAG, "QMC5883L角度: %.2f", g_qmc5883l_data.angle);
+        // 解锁
+        xSemaphoreGive(g_data_mutex);
+    }
+
+    ESP_LOGI(TAG, "QMC5883L角度: %.2f", g_qmc5883l_data.angle);
 
     return ESP_OK;
 }

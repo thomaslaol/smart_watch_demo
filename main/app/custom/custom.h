@@ -17,6 +17,8 @@ extern "C" {
 
 void custom_init(lv_ui *ui);
 
+void draw_ruler_scale(lv_obj_t *canvas, int current_angle);
+
 #ifdef __cplusplus
 }
 #endif

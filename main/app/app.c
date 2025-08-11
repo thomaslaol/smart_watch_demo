@@ -1,5 +1,18 @@
-#include "lcd_api.h"
-#include "lcd_common.h"
+#include "app.h"
+#include "lvgl.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "esp_log.h"
+#include "esp_timer.h"
+#include "lcd.h"
+#include "custom.h"
+#include "gui_guider.h"
+
+#include "mrtc.h"
+#include "aht20.h"
+#include "jfh142.h"
+#include "mpu6050_api.h"
+#include "qmc5883l.h"
 
 /**=========================================================================================== */
 /**                                     DEFINE                                                 */
@@ -18,53 +31,54 @@ static void touch_read_cb(lv_indev_drv_t *indev_drv, lv_indev_data_t *data);
 static void disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p);
 static void lv_tick_task(void *arg);
 static void lvgl_task(void *arg);
+static void screen_refresh_task(void *arg);
 
 /**=========================================================================================== */
 /**                                     PUBILIC                                                */
 /**=========================================================================================== */
-
 /**
- * @brief 初始化 LVGL
+ * @brief 应用层初始化函数
+ *
+ * 初始化lvgl，包括屏幕、双缓存、显示驱动、触摸设备、时间基准和 LVGL 任务
+ *
+ * 初始化成功后，自动启动 LVGL 任务
+ *
  * @param  void
  */
-// 修改LVGL初始化函数，添加触摸输入设备注册
-void lvgl_init(void)
+esp_err_t app_init(void)
 {
-
-    printf("LVGL version: %d.%d.%d\n", LVGL_VERSION_MAJOR, LVGL_VERSION_MINOR, LVGL_VERSION_PATCH);
     // 步骤 1：初始化 LVGL 核心
     lv_init();
 
-    // 提前初始化触摸互斥锁，确保在任何触摸操作前就绪
-    touch_mutex = xSemaphoreCreateMutex();
-    if (!touch_mutex) {
+    // 步骤 2：初始化触摸数据
+    touch_mutex = xSemaphoreCreateMutex(); // 提前初始化触摸互斥锁，确保在任何触摸操作前就绪
+    if (!touch_mutex)
+    {
         ESP_LOGE("LVGL_INIT", "创建触摸互斥锁失败");
-        return;
+        return ESP_FAIL;
     }
-    
-    // 初始化触摸数据
     xSemaphoreTake(touch_mutex, portMAX_DELAY);
     touch_data.state = LV_INDEV_STATE_REL;
     touch_data.point.x = 0;
     touch_data.point.y = 0;
     xSemaphoreGive(touch_mutex);
 
-    // 步骤 2：初始化屏幕
+    // 步骤 3：初始化屏幕
     esp_err_t ret = st7789v_init(&tft, LCD_MISO, LCD_SDA, LCD_SCL, LCD_CS, LCD_DC, LCD_RST, LCD_BL, 20000000);
     if (ret != ESP_OK)
     {
         ESP_LOGE("LVGL_INIT", "屏幕初始化失败！");
-        return;
+        return ret;
     }
 
-    // 步骤 3：配置双缓存
-    static lv_color_t buf1[TFT_WIDTH * BUF_LINE_CNT];//240*40
+    // 步骤 4：配置双缓存
+    static lv_color_t buf1[TFT_WIDTH * BUF_LINE_CNT]; // 240*40
     // static lv_color_t buf2[TFT_WIDTH * BUF_LINE_CNT];
     static lv_disp_draw_buf_t draw_buf;
     // lv_disp_draw_buf_init(&draw_buf, buf1, buf2, TFT_WIDTH * BUF_LINE_CNT);
     lv_disp_draw_buf_init(&draw_buf, buf1, NULL, TFT_WIDTH * BUF_LINE_CNT);
 
-    // 步骤 4：配置显示驱动
+    // 步骤 5：配置显示驱动
     static lv_disp_drv_t disp_drv;
     lv_disp_drv_init(&disp_drv);
     disp_drv.hor_res = TFT_WIDTH;
@@ -73,14 +87,14 @@ void lvgl_init(void)
     disp_drv.flush_cb = disp_flush;
     lv_disp_drv_register(&disp_drv);
 
-    // 步骤 5：初始化触摸设备
+    // 步骤 6：初始化触摸设备
     static lv_indev_drv_t indev_drv;
     lv_indev_drv_init(&indev_drv);
-    indev_drv.type = LV_INDEV_TYPE_POINTER;  // 触摸设备类型
-    indev_drv.read_cb = touch_read_cb;       // 设置触摸读取回调
+    indev_drv.type = LV_INDEV_TYPE_POINTER; // 触摸设备类型
+    indev_drv.read_cb = touch_read_cb;      // 设置触摸读取回调
     touch_indev = lv_indev_drv_register(&indev_drv);
 
-    // 步骤 6：初始化 LVGL 时间基准
+    // 步骤 7：初始化 LVGL 时间基准
     const esp_timer_create_args_t tick_timer_args = {
         .callback = &lv_tick_task,
         .name = "lv_tick_timer"};
@@ -88,16 +102,27 @@ void lvgl_init(void)
     esp_timer_create(&tick_timer_args, &tick_timer);
     esp_timer_start_periodic(tick_timer, 1000); // 每1ms触发一次
 
-    // 步骤 7：创建 LVGL 任务
+    // 步骤 8：创建 LVGL 任务
     xTaskCreate(lvgl_task, "lvgl_task", 4096, NULL, 8, NULL);
 
-    // 创建UI任务
-    // xTaskCreate(ui_task, "ui_task", 2048, NULL, 7, NULL);
-
-    // 启动触摸驱动
+    // 步骤 9: 启动触摸驱动
     cst816t_start_verify();
 
     vTaskDelay(pdMS_TO_TICKS(100));
+
+    setup_ui(&guider_ui); // 初始化UI
+
+    custom_init(&guider_ui); // 初始化自定义组件
+
+    // 步骤 10：创建屏幕刷新任务
+    BaseType_t xReturned = xTaskCreatePinnedToCore(screen_refresh_task, "screen_refresh_task", 4096, NULL, 7, NULL,0);
+    if (xReturned != pdPASS)
+    {
+        ESP_LOGE("LVGL_INIT", "创建屏幕刷新任务失败");
+        return ESP_FAIL;
+    }
+
+    return ESP_OK;
 }
 
 /**=========================================================================================== */
@@ -141,7 +166,7 @@ static void lv_tick_task(void *arg)
 static void lvgl_task(void *arg)
 {
 
-     // 打印栈的剩余空间（初始化时）
+    // 打印栈的剩余空间（初始化时）
     UBaseType_t stack_high_watermark = uxTaskGetStackHighWaterMark(NULL);
     ESP_LOGI("LVGL Task", "初始剩余栈空间: %u 字", stack_high_watermark);
 
@@ -149,6 +174,49 @@ static void lvgl_task(void *arg)
     {
         lv_task_handler(); // 处理 LVGL 事件（依赖时间基准）
         vTaskDelay(pdMS_TO_TICKS(5));
+
+        // // 定期打印栈剩余空间
+        // static int cnt = 0;
+        // if (cnt++ % 100 == 0) {  // 每 500ms 打印一次
+        //     stack_high_watermark = uxTaskGetStackHighWaterMark(NULL);
+        //     ESP_LOGI("LVGL Task", "当前剩余栈空间: %u 字", stack_high_watermark);
+        // }
+    }
+}
+
+// LVGL ui刷新任务 600ms刷新一次
+static void screen_refresh_task(void *arg)
+{
+    // 打印栈的剩余空间（初始化时）
+    UBaseType_t stack_high_watermark = uxTaskGetStackHighWaterMark(NULL);
+    ESP_LOGI("LVGL Task", "初始剩余栈空间: %u 字", stack_high_watermark);
+
+    while (1)
+    {
+        //时间
+        lv_label_set_text(guider_ui.screen_main_label_date, mrtc_get_date_str());
+        lv_label_set_text(guider_ui.screen_main_label_week, mrtc_get_week_str());
+        lv_label_set_text(guider_ui.screen_main_label_time, mrtc_get_time_str());
+        lv_label_set_text(guider_ui.screen_main_label_time_sec, mrtc_get_sec_str());
+
+        //温湿度
+        lv_label_set_text(guider_ui.screen_main_label_temp, aht20_get_temp_str());
+        lv_label_set_text(guider_ui.screen_main_label_humi, aht20_get_hum_str());
+
+        //心率
+        lv_label_set_text(guider_ui.screen_main_label_heart_cnt, jfh142_get_heart_str());
+        
+        //疲劳度
+        lv_label_set_text(guider_ui.screen_main_label_pressure_value, jfh142_get_tired_str());
+
+        //步数
+        lv_label_set_text(guider_ui.screen_main_label_step_cnt, mpu6050_get_step_str());
+
+        //指南针
+        // draw_ruler_scale(guider_ui.screen_main_canvas_direct, g_qmc5883l_data.angle);
+
+
+        vTaskDelay(pdMS_TO_TICKS(1000));
 
         // // 定期打印栈剩余空间
         // static int cnt = 0;

@@ -23,4 +23,6 @@ extern mpu6050_step_t g_mpu6050_step;
  */
 esp_err_t mpu6050_init(void);
 
+char *mpu6050_get_step_str(void);
+
 #endif // _MPU6050_API_H_

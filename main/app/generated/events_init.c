@@ -15,6 +15,34 @@
 #include "freemaster_client.h"
 #endif
 
+static void screen_main_event_handler(lv_event_t *e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    switch (code)
+    {
+    case LV_EVENT_PRESSED:
+    {
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+static void screen_main_canvas_2_event_handler(lv_event_t *e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    switch (code)
+    {
+    case LV_EVENT_CLICKED:
+    {
+        break;
+    }
+    default:
+        break;
+    }
+}
+
 static void screen_main_img_1_event_handler(lv_event_t *e)
 {
     lv_event_code_t code = lv_event_get_code(e);
@@ -27,11 +55,21 @@ static void screen_main_img_1_event_handler(lv_event_t *e)
         const void *img_src = NULL;
 
         if (crurent == 0)
+        {
+            lv_label_set_text(guider_ui.screen_main_label_cnt, "< 1/3 >");
             img_src = &_5555_240x135;
+        }
         else if (crurent == 1)
+        {
+            lv_label_set_text(guider_ui.screen_main_label_cnt, "< 2/3 >");
             img_src = &_222_240x135;
+        }
         else
+        {
+            lv_label_set_text(guider_ui.screen_main_label_cnt, "< 3/3 >");
             img_src = &_333_240x135;
+        }
+
         crurent++;
         crurent %= 3;
         lv_img_set_src(guider_ui.screen_main_img_1, img_src);
@@ -44,6 +82,8 @@ static void screen_main_img_1_event_handler(lv_event_t *e)
 
 void events_init_screen_main(lv_ui *ui)
 {
+    lv_obj_add_event_cb(ui->screen_main, screen_main_event_handler, LV_EVENT_ALL, ui);
+    lv_obj_add_event_cb(ui->screen_main_canvas_2, screen_main_canvas_2_event_handler, LV_EVENT_ALL, ui);
     lv_obj_add_event_cb(ui->screen_main_img_1, screen_main_img_1_event_handler, LV_EVENT_ALL, ui);
 }
 

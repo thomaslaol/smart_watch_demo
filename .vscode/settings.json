@@ -58,7 +58,9 @@
     "type_traits": "c",
     "utility": "c",
     "mpu6050_api.h": "c",
-    "qmc5883l.h": "c"
+    "qmc5883l.h": "c",
+    "ble_time_sync.h": "c",
+    "math.h": "c"
   },
   "idf.flashType": "UART",
   "idf.port": "/dev/ttyUSB0"

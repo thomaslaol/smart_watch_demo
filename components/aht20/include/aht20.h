@@ -19,6 +19,9 @@ extern aht20_data_t g_aht20_data; // 全局变量，存储AHT20的温度和湿�
  * @param void
  * @return esp_err_t 操作结果（ESP_OK表示成功）
  */
+
 esp_err_t aht20_init(void);
+char *aht20_get_temp_str(void);
+char *aht20_get_hum_str(void);
 
 #endif // _AHT20_H_

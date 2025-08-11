@@ -51,5 +51,6 @@ typedef struct
 // 函数声明
 esp_err_t cst816t_init(void);
 void cst816t_start_verify(void);
+void cst816t_start_verify(void);
 
 #endif // CST816T_H

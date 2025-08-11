@@ -13,8 +13,4 @@ extern lv_indev_t *touch_indev;
 extern lv_indev_data_t touch_data;
 extern SemaphoreHandle_t touch_mutex; 
 
-void ui_task(void *arg);
-
-void cst816t_start_verify(void);
-
 #endif // _LCD_COMMON_H_

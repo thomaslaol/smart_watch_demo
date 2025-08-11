@@ -106,6 +106,19 @@ esp_err_t aht20_init(void)
     return ESP_OK;
 }
 
+char *aht20_get_temp_str(void)
+{
+    static char temp_str[32];
+    sprintf(temp_str, "%.0f", g_aht20_data.temperature);
+    return temp_str;
+}
+
+char *aht20_get_hum_str(void)
+{
+    static char hum_str[32] = {0};
+    sprintf(hum_str, "%.0f%", g_aht20_data.humidity);
+    return hum_str;
+}
 /**=========================================================================================== */
 /**                                     STATIC                                                 */
 /**=========================================================================================== */
@@ -122,7 +135,7 @@ static void aht20_task(void *pvParameters)
     while (1)
     {
         aht20_get_value(&g_aht20_data);
-        // printf("温度：%f, 湿度：%f\n", temperature, humidity);
+        // printf("温度：%f, 湿度：%f\n", g_aht20_data.temperature, g_aht20_data.humidity);
         vTaskDelay(pdMS_TO_TICKS(2000));
     }
 }

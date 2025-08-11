@@ -2,10 +2,12 @@
 #define _QMC5883L_H_
 
 #include "esp_err.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
 
 typedef struct
 {
-    double angle;
+    volatile double angle;
 } qmc5883l_data_t;
 
 extern qmc5883l_data_t g_qmc5883l_data;
@@ -23,5 +25,7 @@ extern qmc5883l_data_t g_qmc5883l_data;
  * @return esp_err_t
  */
 esp_err_t qmc5883l_init(void);
+
+extern SemaphoreHandle_t g_data_mutex;
 
 #endif // _QMC5883L_H_

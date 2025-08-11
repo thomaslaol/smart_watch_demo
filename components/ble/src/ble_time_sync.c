@@ -1,5 +1,5 @@
 #include "ble_time_sync.h"
-#include "mrtc.h"
+// #include "mrtc.h"
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -51,9 +51,9 @@ static void ble_adv_config(const char *device_name);
 /**=========================================================================================== */
 /**
  * @brief 蓝牙初始化入口函数
- * 
+ *
  * @note 初始化顺序：NVS -> 时区 -> 蓝牙控制器 -> Bluedroid -> GAP 回调 -> GATT 回调 -> GATT 应用 -> 广播配置
- * 
+ *
  * @param device_name 设备名称
  * @return ESP_OK 成功，其他失败
  */
@@ -236,7 +236,9 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
             printf("接收到的Unix时间戳: %lld\n", unix_timestamp);
 
             // 初始化时间
-            mrtc_set_time(unix_timestamp);
+            // mrtc_set_time(unix_timestamp);
+            struct timeval val = {.tv_sec = (time_t)unix_timestamp, .tv_usec = 0};
+            settimeofday(&val, NULL);
 
             // // 回复写入确认
             esp_ble_gatts_send_response(

@@ -1,7 +1,4 @@
 set(srcs 
-"src/ui.c"
-"src/lvgl_init.c"
-# "src/lcd.c"
 "src/st7789v.c"
 "src/cst816t.c"
 )

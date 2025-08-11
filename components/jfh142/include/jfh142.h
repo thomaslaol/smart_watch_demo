@@ -30,4 +30,8 @@ typedef struct
  */
 esp_err_t jfh142_init(void);
 
+char *jfh142_get_heart_str(void);
+
+char *jfh142_get_tired_str(void);
+
 #endif // _JFH142_H_

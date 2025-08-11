@@ -10,11 +10,10 @@
 #include "bmp280.h"
 #include "mpu6050_api.h"
 #include "jfh142.h"
-#include "lcd_api.h"
+#include "app.h"
 #include "mrtc.h"
 #include "ble_time_sync.h"
-#include "generated/gui_guider.h" // UI结构体
-#include "custom/custom.h"        // 自定义初始化
+
 
 #define LOG_LOCAL_LEVEL ESP_LOG_DEBUG
 // 定义宏函数，用于检查函数返回值

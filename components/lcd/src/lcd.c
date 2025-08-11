@@ -1,10 +1,10 @@
+/**bjy:使用st7789v驱动直接显示屏幕，测试使用 */
+#if 0
 #include "lcd.h"
 #include "st7789v.h"
 #include "esp_log.h"
 
 static const char *TAG = "lcd";
-
-
 
 // 1. 显示文本（使用简单的8x8点阵字体）
 // 8x8 ASCII字符点阵（以字符'A'为例，完整字体需扩展）
@@ -190,4 +190,4 @@ void lcd_init(void)
 }
 
 
-
+#endif

@@ -128,7 +128,7 @@ esp_err_t jfh142_init(void)
 
     // 创建数据接收任务
     TaskHandle_t pxCreatedTask = NULL;
-    BaseType_t task_ret = xTaskCreate((TaskFunction_t)jfh142_data_task, "jfh142_data_task", 4096, NULL, 5, &pxCreatedTask);
+    BaseType_t task_ret = xTaskCreatePinnedToCore((TaskFunction_t)jfh142_data_task, "jfh142_data_task", 4096, NULL, 5, &pxCreatedTask,1);
     if (task_ret != pdPASS)
     {
         ESP_LOGE(TAG, "创建数据接收任务失败");
@@ -145,6 +145,22 @@ esp_err_t jfh142_init(void)
     ESP_LOGI(TAG, "JFH142初始化成功");
     return ESP_OK;
 }
+
+char *jfh142_get_heart_str(void)
+{
+    static char heart_str[8] = {0};
+    sprintf(heart_str, "%d", g_health_data.heartrate);
+    return heart_str;
+}
+
+//疲惫值
+char *jfh142_get_tired_str(void)
+{
+    static char tired_str[8] = {0};
+    sprintf(tired_str, "%d", g_health_data.fatigue_index);
+    return tired_str;
+}
+
 
 /**=========================================================================================== */
 /**                                     STATIC                                                 */
