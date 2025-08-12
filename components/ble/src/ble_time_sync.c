@@ -30,7 +30,7 @@
 // 全局变量
 static uint16_t s_time_char_handle = 0;            // 时间特征句柄
 static esp_gatt_if_t s_gatt_if = ESP_GATT_IF_NONE; // GATT接口
-static bool s_is_connected = false;                // 连接状态标志
+static volatile bool s_is_connected = false;                // 连接状态标志
 static esp_ble_adv_params_t adv_params;            // 广播参数（用于断开后重启广播）
 // 日志标签
 static const char *TAG = "BLE_TIME_SYNC";
@@ -195,6 +195,7 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
     case ESP_GATTS_CONNECT_EVT:
         // 设备连接成功
         s_is_connected = true;
+ 
         ESP_LOGI(TAG, "设备已连接，conn_id: %d，地址: " ESP_BD_ADDR_STR,
                  param->connect.conn_id, ESP_BD_ADDR_HEX(param->connect.remote_bda));
         break;
@@ -202,8 +203,8 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
     case ESP_GATTS_DISCONNECT_EVT:
         // 设备断开连接，重启广播
         s_is_connected = false;
-        ESP_LOGI(TAG, "设备已断开，conn_id: %d，原因: %d",
-                 param->disconnect.conn_id, param->disconnect.reason);
+        ESP_LOGI(TAG, "设备已断开，conn_id: %d，原因: %d,s_is_connected: %d",
+                 param->disconnect.conn_id, param->disconnect.reason, s_is_connected);
         esp_ble_gap_start_advertising(&adv_params);
         break;
 

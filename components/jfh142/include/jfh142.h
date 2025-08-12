@@ -34,4 +34,8 @@ char *jfh142_get_heart_str(void);
 
 char *jfh142_get_tired_str(void);
 
+char *jfh142_get_o2_str(void);
+
+char *jfh142_get_bk_str(void);
+
 #endif // _JFH142_H_

@@ -32,7 +32,7 @@
 #define GRAM_HEIGHT 320 // ST7789V内置GRAM高度
 #define START_ROW 20
 #define END_ROW (START_ROW + TFT_HEIGHT - 1)
-#define BUF_LINE_CNT 40 // 缓冲区行数
+#define BUF_LINE_CNT 60 // 缓冲区行数
 
 // ST7789V命令定义
 #define ST7789_NOP 0x00

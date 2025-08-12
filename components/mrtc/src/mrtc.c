@@ -4,17 +4,22 @@
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/semphr.h"
 
 mrtc_time_t g_mrtc_data;
 static const char *TAG = "mrtc";
+static SemaphoreHandle_t s_mrtc_mutex = NULL;
 
 static void mrtc_task(void *pvParameters);
 static mrtc_time_t *mrtc_get_time(void);
 
 esp_err_t mrtc_init(void)
 {
+    // 互斥所
+    s_mrtc_mutex = xSemaphoreCreateMutex();
+
     // 创建mrtc任务
-    BaseType_t xReturned = xTaskCreatePinnedToCore(mrtc_task, "mrtc_task", 4096, NULL, 8, NULL,0);
+    BaseType_t xReturned = xTaskCreatePinnedToCore(mrtc_task, "mrtc_task", 4096, NULL, 8, NULL, 0);
     if (xReturned != pdPASS)
     {
         ESP_LOGE(TAG, "create mrtc task failed");
@@ -33,7 +38,14 @@ char *mrtc_get_time_str(void)
 char *mrtc_get_sec_str(void)
 {
     static char sec_str[8] = {0};
-    sprintf(sec_str, ":%02d", g_mrtc_data.second);
+    if (xSemaphoreTake(s_mrtc_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    {
+
+        sprintf(sec_str, ":%02d", g_mrtc_data.second);
+        // 解锁
+        xSemaphoreGive(s_mrtc_mutex);
+    }
+
     return sec_str;
 }
 
@@ -92,22 +104,28 @@ static mrtc_time_t *mrtc_get_time(void)
     time_t second = time(NULL);
     datetime = localtime(&second);
 
-    g_mrtc_data.year = datetime->tm_year + 1900;
-    g_mrtc_data.month = datetime->tm_mon + 1;
-    g_mrtc_data.day = datetime->tm_mday;
-    g_mrtc_data.hour = datetime->tm_hour;
-    g_mrtc_data.minute = datetime->tm_min;
-    g_mrtc_data.second = datetime->tm_sec;
-    g_mrtc_data.weekday = datetime->tm_wday;
+    if (xSemaphoreTake(s_mrtc_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    {
+
+        g_mrtc_data.year = datetime->tm_year + 1900;
+        g_mrtc_data.month = datetime->tm_mon + 1;
+        g_mrtc_data.day = datetime->tm_mday;
+        g_mrtc_data.hour = datetime->tm_hour;
+        g_mrtc_data.minute = datetime->tm_min;
+        g_mrtc_data.second = datetime->tm_sec;
+        g_mrtc_data.weekday = datetime->tm_wday;
+        // 解锁
+        xSemaphoreGive(s_mrtc_mutex);
+    }
 
     // ESP_LOGI(TAG, "year: %d, month: %d, day: %d, hour: %d, minute: %d, second: %d, weekday: %d",
-            //  g_mrtc_data.year,
-            //  g_mrtc_data.month,
-            //  g_mrtc_data.day,
-            //  g_mrtc_data.hour,
-            //  g_mrtc_data.minute,
-            //  g_mrtc_data.second,
-            //  g_mrtc_data.weekday);
-            
+    //  g_mrtc_data.year,
+    //  g_mrtc_data.month,
+    //  g_mrtc_data.day,
+    //  g_mrtc_data.hour,
+    //  g_mrtc_data.minute,
+    //  g_mrtc_data.second,
+    //  g_mrtc_data.weekday);
+
     return &g_mrtc_data;
 }

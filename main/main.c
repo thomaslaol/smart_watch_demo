@@ -2,9 +2,8 @@
 
 void app_main(void)
 {
-
     //蓝牙
-    esp_err_t ret = ble_time_sync_init("ESP32-Time-Sync");
+    esp_err_t ret = ble_time_sync_init("ESP32");
     CHEKRET(ret, "ble_time_sync_init");
 
     //mrtc

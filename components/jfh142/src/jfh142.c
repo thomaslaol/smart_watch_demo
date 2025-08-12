@@ -161,6 +161,21 @@ char *jfh142_get_tired_str(void)
     return tired_str;
 }
 
+//
+char *jfh142_get_o2_str(void)
+{
+    static char o2_str[8] = {0};
+    sprintf(o2_str, "%d", g_health_data.spo2);
+    return o2_str;
+}
+
+//微循环
+char *jfh142_get_bk_str(void)
+{
+    static char bk_str[8] = {0};
+    sprintf(bk_str, "%d", g_health_data.bk);
+    return bk_str;
+}
 
 /**=========================================================================================== */
 /**                                     STATIC                                                 */

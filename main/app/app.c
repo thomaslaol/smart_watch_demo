@@ -14,6 +14,9 @@
 #include "mpu6050_api.h"
 #include "qmc5883l.h"
 
+#include "ble_time_sync.h"
+
+
 /**=========================================================================================== */
 /**                                     DEFINE                                                 */
 /**=========================================================================================== */
@@ -201,7 +204,7 @@ static void screen_refresh_task(void *arg)
 
         //温湿度
         lv_label_set_text(guider_ui.screen_main_label_temp, aht20_get_temp_str());
-        lv_label_set_text(guider_ui.screen_main_label_humi, aht20_get_hum_str());
+        lv_label_set_text(guider_ui.screen_main_label_hum, aht20_get_hum_str());
 
         //心率
         lv_label_set_text(guider_ui.screen_main_label_heart_cnt, jfh142_get_heart_str());
@@ -209,10 +212,28 @@ static void screen_refresh_task(void *arg)
         //疲劳度
         lv_label_set_text(guider_ui.screen_main_label_pressure_value, jfh142_get_tired_str());
 
+        //血氧
+        lv_label_set_text(guider_ui.screen_main_label_o2, jfh142_get_o2_str());
+
+        //微循环
+        lv_label_set_text(guider_ui.screen_main_label_wei, jfh142_get_bk_str());
+
         //步数
         lv_label_set_text(guider_ui.screen_main_label_step_cnt, mpu6050_get_step_str());
 
-        //指南针
+        if (ble_is_connected() == true)
+        {
+            // printf("ble is connected\n");
+            lv_obj_set_size(guider_ui.screen_main_img_11, 20, 20);
+        }
+        else
+        {
+            lv_obj_set_size(guider_ui.screen_main_img_11, 00, 00);
+        }
+        
+        
+        
+        //
         // draw_ruler_scale(guider_ui.screen_main_canvas_direct, g_qmc5883l_data.angle);
 
 

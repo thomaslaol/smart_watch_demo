@@ -27,12 +27,18 @@ idf_component_register(
     "app/images/_3304542_20230221171348882211_0_alpha_238x1.c"
     "app/images/_date_15x15.c"
     "app/images/_heart2_25x25.c"
-    "app/images/_hum_20x20.c"
+    "app/images/_hum_23x23.c"
     "app/images/_pointer2_15x15.c"
     "app/images/_step_23x20.c"
     "app/images/_temp_23x23.c"
     "app/images/_tired_25x25.c"
     "app/images/_week_25x25.c"
+
+    "app/images/_temp_25x25.c"
+    "app/images/_bt_20x20.c"
+    "app/images/_o2_21x20.c"
+    "app/images/_power2_20x20.c"
+    "app/images/_wei_22x22.c"
 
 
     INCLUDE_DIRS
